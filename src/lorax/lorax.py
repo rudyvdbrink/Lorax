@@ -16,6 +16,7 @@ DEFAULT_IGNORE_PATTERNS = [
     ".mypy_cache/",
     ".pytest_cache/",
     ".ruff_cache/",
+    "*.egg-info/",
     # JS / TS / web
     "node_modules/",
     ".next/",
@@ -30,6 +31,25 @@ DEFAULT_IGNORE_PATTERNS = [
 
 
 class Lorax:
+    """
+    A class to generate and display a directory tree representation of a given root directory.
+
+    The Lorax class provides functionality to recursively traverse a directory structure,
+    filter out files and directories based on ignore patterns, and generate a visual
+    representation of the directory tree.
+
+    Attributes:
+        root (Path): The root directory from which the tree is built.
+        ignore_patterns (list[str]): A list of patterns to ignore during traversal.
+        _spec (pathspec.PathSpec): A compiled specification for matching ignore patterns.
+
+    Methods:
+        build_tree() -> str:
+            Constructs and returns a string representation of the directory tree.
+
+        speak() -> None:
+            Prints the directory tree representation to the console.
+    """
     def __init__(self, root: Path | str = ".",
                  ignore_patterns: list[str] | None = None) -> None:
         self.root = Path(root).resolve()
@@ -45,14 +65,18 @@ class Lorax:
         lines: list[str] = [f"{root.name}/"]
 
         def _walk(dir_path: Path, prefix: str = "") -> None:
-            entries = sorted(
-                [
-                    p
-                    for p in dir_path.iterdir()
-                    if not spec.match_file(str(p.relative_to(root)))
-                ],
-                key=lambda p: (p.is_file(), p.name.lower()),
-            )
+            entries: list[Path] = []
+            for p in dir_path.iterdir():
+                rel = p.relative_to(root)
+                rel_str = str(rel)
+                # Append "/" for directories so "*.egg-info/" and ".git/" match the directory itself
+                if p.is_dir():
+                    rel_str = rel_str.rstrip("/") + "/"
+                if spec.match_file(rel_str):
+                    continue
+                entries.append(p)
+
+            entries.sort(key=lambda p: (p.is_file(), p.name.lower()))
 
             for i, entry in enumerate(entries):
                 connector = "└── " if i == len(entries) - 1 else "├── "
@@ -76,5 +100,5 @@ class Lorax:
 
 if __name__ == "__main__":
     # Example usage: run from project root
-    Lorax().speak()
+    Lorax(root='C:/DATA/llmlynx/').speak()
     
