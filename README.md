@@ -21,8 +21,6 @@ This prints a tree for the current working directory, for example:
 
 ```text
 Lorax/
-├── .git/
-├── .venv/
 ├── src/
 │   └── lorax/
 │       ├── __init__.py
