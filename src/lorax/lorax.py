@@ -100,5 +100,5 @@ class Lorax:
 
 if __name__ == "__main__":
     # Example usage: run from project root
-    Lorax(root='C:/DATA/llmlynx/').speak()
+    Lorax().speak()
     
